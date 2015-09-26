@@ -6,6 +6,7 @@
 var express = require('express')
   , routes = require('./routes');
 
+var WebSocketServer = require("ws").Server
 var app = module.exports = express.createServer();
 var io = require('socket.io')(app);
 
@@ -44,10 +45,18 @@ app.listen(process.env.PORT || 5000, function(){
   console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
 });
 
-io.on('connection', function(socket) {
-  socket.emit('news', {hello: 'world'});
-  socket.on('start', function(data) {
-    console.log('socket.on:start')
-    console.log(data);
-  });
+var wss = new WebSocketServer({server: app})
+console.log("websocket server created")
+
+wss.on("connection", function(ws) {
+  var id = setInterval(function() {
+    ws.send(JSON.stringify(new Date()), function() {  })
+  }, 1000)
+
+  console.log("websocket connection open")
+
+  ws.on("close", function() {
+    console.log("websocket connection close")
+    clearInterval(id)
+  })
 })
