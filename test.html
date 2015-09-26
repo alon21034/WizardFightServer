@@ -1,0 +1,13 @@
+<script src="https://cdn.socket.io/socket.io-1.0.0.js"></script>
+<script>
+	console.log("This html file is only used to test socket connection!!!");
+  var socket = io('http://localhost:5000');
+  var id = '752553';
+  socket.emit('start',
+  	{message: 'this is test message', room_id: id }
+  );
+  socket.on('pong', function(data) {
+  	console.log('pong', data);
+  });
+
+</script>
