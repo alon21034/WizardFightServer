@@ -30,7 +30,10 @@ app.configure('production', function(){
 
 // Routes
 
-app.get('/', routes.index);
+app.get('/', function(req, res) {
+  console.log(app.address().port);
+  res.render('index', { title: 'Express', port: app.address().port})
+});
 
 app.get('/room', function(req, res) {
 
