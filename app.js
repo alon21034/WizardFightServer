@@ -9,6 +9,55 @@ var express = require('express')
 var app = module.exports = express.createServer();
 var io = require('socket.io')(app);
 
+// This should be put in another file
+var Game = function() {
+	console.log("create game instance");
+	this.fighter_list = [];
+}
+
+Game.prototype.addFighter = function(f) {
+	this.fighter_list.push(f);
+}
+
+Game.prototype.getJSON = function() {
+	ret = {};
+	temp = [];
+	for (var i = 0 ; i < this.fighter_list.length ; ++i) {
+		temp.push(this.fighter_list[i].toString());
+	}
+	ret['fighter_list'] = temp;
+	return ret;
+}
+
+var Fighter = function(x, y) {
+	this.x = x;
+	this.y = y;
+}
+
+Fighter.prototype.move = function(x, y) {
+	if (this.x > x) {
+		this.x -= 5;
+	} else if (this.x < x) {
+		this.x += 5;
+	}
+	if (this.y > y) {
+		this.y -= 5;
+	} else if (this.y < y) {
+		this.y += 5;
+	}
+}
+
+Fighter.prototype.toString = function() {
+	ret = {};
+	ret['x'] = this.x;
+	ret['y'] = this.y;
+	return ret;
+}
+
+game = new Game();
+fighter = new Fighter(10, 20);
+game.addFighter(fighter);
+
 // Configuration
 
 app.configure(function(){
@@ -42,9 +91,13 @@ app.listen(process.env.PORT || 5000, function(){
 });
 
 io.on('connection', function(socket) {
-  socket.emit('news', {hello: 'world'});
+  socket.emit('initial', {hello: 'world'});
   socket.on('start', function(data) {
     console.log('socket.on:start')
     console.log(data);
+  });
+  socket.on('update', function(data) {
+  	console.log(game.getJSON());
+  	//socket.emit('game_data', game.getJSON());
   });
 })
