@@ -1,28 +1,50 @@
-var WebSocketServer = require("ws").Server
-var http = require("http")
-var express = require("express")
-var app = express()
-var port = process.env.PORT || 5000
 
-app.use(express.static(__dirname + "/"))
+/**
+ * Module dependencies.
+ */
 
-var server = http.createServer(app)
-server.listen(port)
+var express = require('express')
+  , routes = require('./routes');
 
-console.log("http server listening on %d", port)
+var app = module.exports = express.createServer();
+var io = require('socket.io')(app);
 
-var wss = new WebSocketServer({server: server})
-console.log("websocket server created")
+// Configuration
 
-wss.on("connection", function(ws) {
-  var id = setInterval(function() {
-    ws.send(JSON.stringify(new Date()), function() {  })
-  }, 1000)
+app.configure(function(){
+  app.set('views', __dirname + '/views');
+  app.set('view engine', 'jade');
+  app.use(express.bodyParser());
+  app.use(express.methodOverride());
+  app.use(app.router);
+  app.use(express.static(__dirname + '/public'));
+});
 
-  console.log("websocket connection open")
+app.configure('development', function(){
+  app.use(express.errorHandler({ dumpExceptions: true, showStack: true }));
+});
 
-  ws.on("close", function() {
-    console.log("websocket connection close")
-    clearInterval(id)
-  })
+app.configure('production', function(){
+  app.use(express.errorHandler());
+});
+
+// Routes
+
+app.get('/', routes.index);
+
+app.get('/room', function(req, res) {
+
+});
+
+
+app.listen(process.env.PORT || 5000, function(){
+  console.log("Express server listening on port %d in %s mode", app.address().port, app.settings.env);
+});
+
+io.on('connection', function(socket) {
+  socket.emit('news', {hello: 'world'});
+  socket.on('start', function(data) {
+    console.log('socket.on:start')
+    console.log(data);
+  });
 })

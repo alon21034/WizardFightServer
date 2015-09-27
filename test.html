@@ -1,33 +1,11 @@
-<html>
-  <head>
-    <style>
-      body {
-        font-family: "Helvetica Neue", helvetica, arial;
-        padding: 15px;
-      }
-      ul {
-        list-style: none;
-        margin: 0;
-        padding: 0;
-      }
-      ul li {
-        line-height: 1.4;
-      }
-    </style>
-
-    <script>
-      //var host = location.origin.replace(/^http/, 'ws')
-      var ws = new WebSocket('ws://localhost:5000');
-      // var ws = new WebSocket('ws://wizardfight.herokuapp.com:58529')
-      ws.onmessage = function (event) {
-        var li = document.createElement('li');
-        li.innerHTML = JSON.parse(event.data);
-        document.querySelector('#pings').appendChild(li);
-      };
-    </script>
-  </head>
-  <body>
-    <h1>Pings</h1>
-    <ul id='pings'></ul>
-  </body>
-</html>
+<script src="https://cdn.socket.io/socket.io-1.0.0.js"></script>
+<script>
+  console.log("This html file is only used to test socket connection!!!");
+  var socket = io('http://localhost:5000');
+  socket.emit('start',
+    {message: 'this is test message', room_id: 123 }
+  );
+  socket.on('pong', function(data) {
+    console.log('pong', data);
+  });
+</script>
